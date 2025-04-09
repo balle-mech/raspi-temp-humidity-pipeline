@@ -1,0 +1,8 @@
+dotenv
+PATH_add bin
+
+export device0="/sys/bus/iio/devices/iio:device0"
+export STORAGE_ACCOUNT=""
+export CONTAINER_NAME=""
+export LOCAL_FILE_PATH=""
+export SAS_URL=f""

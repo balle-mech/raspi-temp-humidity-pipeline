@@ -1,1 +1,7 @@
 temp-humidity-sensor-venv/
+local_raw_data/
+todo.md
+.envrc
+.env
+__pycache__/
+*.log
