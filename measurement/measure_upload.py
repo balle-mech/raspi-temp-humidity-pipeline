@@ -8,8 +8,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from upload import upload_to_adls
 
-measurement_interval_seconds = 60.0
-csv_rotation_interval_minutes = 1440
+measurement_interval_seconds = 120.0
+csv_rotation_interval_minutes = 2880
 device0 = os.environ["DEVICE0"]
 csv_directory = os.path.join(os.getcwd(), 'local_raw_data')
 
