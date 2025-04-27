@@ -11,11 +11,11 @@ def upload_csv(local_file_path: str):
     blob_name = f"{ts}.csv"
 
     # 正しいBlob URLを構築
-    blob_url = f"https://{env.STORAGE_ACCOUNT}.blob.core.windows.net/{env.CONTAINER_NAME}/{env.blob_name}?{env.SAS_URL.split('?')[1]}"
+    blob_url = f"https://{env.get('STORAGE_ACCOUNT')}.blob.core.windows.net/{env.get('CONTAINER_NAME')}/{blob_name}?{env.get('SAS_URL').split('?')[1]}"
     blob = BlobClient.from_blob_url(blob_url)
     with open(local_file_path, "rb") as f:
         blob.upload_blob(f, overwrite=False)   # 10 MB file ≈ 1 s on home fibre
     print("uploaded", blob.url)
 
 if __name__ == "__main__":
-    upload_csv(env.LOCAL_FILE_PATH)
+    upload_csv(env.get('LOCAL_FILE_PATH'))

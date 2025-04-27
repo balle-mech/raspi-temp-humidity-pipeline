@@ -8,8 +8,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from upload import upload_to_adls
 
-measurement_interval_seconds = 60.0
-csv_rotation_interval_minutes = 1440
+measurement_interval_seconds = 300.0
+csv_rotation_interval_minutes = 10080
 device0 = os.environ["DEVICE0"]
 csv_directory = os.path.join(os.getcwd(), 'local_raw_data')
 
@@ -34,7 +34,7 @@ def create_new_csv():
     filepath = os.path.join(csv_directory, filename)
     with open(filepath, "w", newline="") as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["Timestamp", "Temperature (℃)", "Humidity (%)"])
+        writer.writerow(["Timestamp", "Temperature", "Humidity"])
     return filepath
 
 # メイン処理
@@ -61,7 +61,7 @@ try:
 
         print(f"[{timestamp}] Temperature: {temperature} ℃, Humidity: {humidity} %")
 
-        # 30分経過したらファイルをADLSに送信し、新しいCSVファイルを作成
+        # 設定時間経過したらファイルをADLSに送信し、新しいCSVファイルを作成
         if datetime.now() - start_time >= timedelta(minutes=csv_rotation_interval_minutes):
             upload_to_adls.upload_csv(current_csv)
             current_csv = create_new_csv()
