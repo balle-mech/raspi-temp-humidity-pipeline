@@ -5,3 +5,4 @@ todo.md
 .env
 __pycache__/
 *.log
+log/
