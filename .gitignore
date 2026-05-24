@@ -10,18 +10,3 @@ log/
 # 収集データ（.gitkeep のみ管理）
 data/raw/
 data/logs/
-
-# 個人設定・IDE
-.bash_profile
-.bashrc
-.profile
-.zprofile
-.zshrc
-.gitconfig
-.ripgreprc
-.idea/
-.vscode/
-.mcp.json
-
-# Claude Code ローカル設定
-.claude/settings.local.json
