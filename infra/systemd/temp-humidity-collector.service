@@ -1,0 +1,19 @@
+[Unit]
+Description=Temperature and Humidity Collector
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=mech
+WorkingDirectory=/home/mech/src/raspi-temp-humidity-pipeline
+EnvironmentFile=/home/mech/src/raspi-temp-humidity-pipeline/.env
+ExecStart=/home/mech/src/raspi-temp-humidity-pipeline/temp-humidity-sensor-venv/bin/python -m collector.main
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=temp-humidity-collector
+
+[Install]
+WantedBy=multi-user.target

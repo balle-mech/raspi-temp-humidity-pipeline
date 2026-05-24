@@ -6,3 +6,8 @@ todo.md
 __pycache__/
 *.log
 log/
+
+# 収集データ（.gitkeep のみ管理）
+data/raw/*.csv
+data/logs/*.log
+data/logs/*.log.*

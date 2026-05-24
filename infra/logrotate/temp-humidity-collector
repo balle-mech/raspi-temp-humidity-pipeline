@@ -1,0 +1,9 @@
+/home/mech/src/raspi-temp-humidity-pipeline/data/logs/collector.log {
+    daily
+    rotate 30
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+}
