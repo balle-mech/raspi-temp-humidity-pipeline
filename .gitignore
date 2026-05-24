@@ -8,6 +8,5 @@ __pycache__/
 log/
 
 # 収集データ（.gitkeep のみ管理）
-data/raw/*.csv
-data/logs/*.log
-data/logs/*.log.*
+data/raw/
+data/logs/
