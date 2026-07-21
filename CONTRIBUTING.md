@@ -54,9 +54,10 @@ tail -f data/logs/collector.log
 
 | ブランチ | 用途 |
 |----------|------|
-| `main` | 常に動作する最新版。直接コミットせず PR 経由でマージする |
-| `feature/<機能名>` | 機能開発用。`main` から分岐し、マージ後は削除する |
+| `main` | 安定版。`develop` からのマージのみを受け付け、直接コミットしない |
+| `develop` | 開発の統合ブランチ。機能ブランチの派生元・マージ先 |
+| `feature/<機能名>` | 機能開発用。`develop` から分岐し、マージ後は削除する |
 | `archive/<名前>` | 現構成から外した実装を履歴ごと残す退避先（例: `archive/databricks-pipeline`） |
 
-- 機能開発ブランチは `feature/` プレフィックスで始める（例: `feature/dashboard-smoothing`）
-- `dev` プレフィックスや恒久的な開発ブランチ（`develop` 等）は使わない
+- 機能開発ブランチは `feature/` プレフィックスで始める（例: `feature/dashboard-smoothing`）。`dev` プレフィックスは使わない
+- フロー: `feature/*` → PR → `develop` → 動作確認後 `main` へマージ
