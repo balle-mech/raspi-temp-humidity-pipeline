@@ -1,12 +1,15 @@
 # collector（Phase 1）
 # 標準ライブラリのみ使用のため外部依存なし
 
+# visualization（Phase 2）
+streamlit>=1.0
+pandas>=2.0
+
+# testing
+pytest>=9.0
+
 # processor（Phase 2 以降）
-# polars>=1.0       # CSV 集計・変換
 # paho-mqtt>=2.0    # MQTT クライアント（ストリーム処理）
 
 # orchestrator（Phase 3 以降）
 # prefect>=3.0      # ワークフロー管理
-
-# visualization（Phase 2 以降）
-# grafana-client    # Grafana API クライアント

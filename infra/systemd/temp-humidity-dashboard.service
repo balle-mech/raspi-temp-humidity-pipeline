@@ -1,0 +1,15 @@
+[Unit]
+Description=Temperature and Humidity Streamlit Dashboard
+After=network.target
+
+[Service]
+Type=simple
+User=mech
+WorkingDirectory=/home/mech/src/raspi-temp-humidity-pipeline
+EnvironmentFile=/home/mech/src/raspi-temp-humidity-pipeline/.env
+ExecStart=/home/mech/src/raspi-temp-humidity-pipeline/temp-humidity-sensor-venv/bin/streamlit run processor/dashboard.py --server.port 8501 --server.headless true
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
