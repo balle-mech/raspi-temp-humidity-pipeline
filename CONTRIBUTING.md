@@ -49,3 +49,14 @@ sudo systemctl status temp-humidity-collector
 journalctl -u temp-humidity-collector -f
 tail -f data/logs/collector.log
 ```
+
+## ブランチ戦略
+
+| ブランチ | 用途 |
+|----------|------|
+| `main` | 常に動作する最新版。直接コミットせず PR 経由でマージする |
+| `feature/<機能名>` | 機能開発用。`main` から分岐し、マージ後は削除する |
+| `archive/<名前>` | 現構成から外した実装を履歴ごと残す退避先（例: `archive/databricks-pipeline`） |
+
+- 機能開発ブランチは `feature/` プレフィックスで始める（例: `feature/dashboard-smoothing`）
+- `dev` プレフィックスや恒久的な開発ブランチ（`develop` 等）は使わない
