@@ -1,6 +1,12 @@
 {
   "sandbox": {
     "enabled": true,
-    "autoAllowBashIfSandboxed": true
+    "autoAllowBashIfSandboxed": true,
+    "network": {
+      "allowedDomains": ["pypi.org", "files.pythonhosted.org"]
+    }
+  },
+  "permissions": {
+    "allow": ["Bash(*)"]
   }
 }
