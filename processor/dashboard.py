@@ -12,6 +12,7 @@ from processor.data import (
     compute_temp_domain,
     load_data as _load_data,
     resample_for_display,
+    rolling_median,
     x_format,
 )
 
@@ -29,9 +30,10 @@ def _make_chart(
     y_title: str,
     y_domain: list,
     fmt: str,
+    raw: pd.DataFrame | None = None,
 ) -> alt.Chart:
     color = "#e05c5c" if column == "temperature_c" else "#5c8ae0"
-    return (
+    line = (
         alt.Chart(data.reset_index())
         .mark_line(color=color, strokeWidth=2)
         .encode(
@@ -48,6 +50,17 @@ def _make_chart(
         )
         .properties(height=280)
     )
+    if raw is None:
+        return line
+    raw_line = (
+        alt.Chart(raw.reset_index())
+        .mark_line(color=color, strokeWidth=1, opacity=0.3)
+        .encode(
+            x=alt.X("timestamp:T"),
+            y=alt.Y(f"{column}:Q", scale=alt.Scale(domain=y_domain, clamp=True)),
+        )
+    )
+    return raw_line + line
 
 
 st.markdown("""
@@ -98,18 +111,31 @@ if filtered.empty:
     st.warning("選択した期間にデータがありません。")
     st.stop()
 
+smooth_on = st.checkbox(
+    "平滑化（1時間ローリング中央値）",
+    value=True,
+    help="DHT-11 の読み取りノイズを抑えるため、直近1時間の中央値を表示します。薄い線が生データです。",
+)
+
 display = resample_for_display(filtered)
 days_shown = (display.index[-1] - display.index[0]).total_seconds() / 86400
 fmt = x_format(days_shown)
 
+if smooth_on:
+    main_line = resample_for_display(rolling_median(filtered)).dropna(how="all")
+    raw_line = display
+else:
+    main_line = display
+    raw_line = None
+
 st.subheader("温度 (℃)")
 st.altair_chart(
-    _make_chart(display, "temperature_c", "℃", compute_temp_domain(display), fmt),
+    _make_chart(main_line, "temperature_c", "℃", compute_temp_domain(display), fmt, raw=raw_line),
     use_container_width=True,
 )
 
 st.subheader("湿度 (%)")
 st.altair_chart(
-    _make_chart(display, "humidity_pct", "%", compute_hum_domain(display), fmt),
+    _make_chart(main_line, "humidity_pct", "%", compute_hum_domain(display), fmt, raw=raw_line),
     use_container_width=True,
 )

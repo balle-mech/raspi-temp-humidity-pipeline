@@ -5,6 +5,7 @@ from processor.data import (
     compute_hum_domain,
     compute_temp_domain,
     resample_for_display,
+    rolling_median,
     x_format,
 )
 
@@ -132,3 +133,29 @@ class TestComputeHumDomain:
         lo, hi = compute_hum_domain(df)
         assert lo == pytest.approx(45.0)
         assert hi == pytest.approx(55.0)
+
+
+# ── rolling_median ────────────────────────────────────────────────────────────
+
+class TestRollingMedian:
+    def _df(self, temps: list[float]) -> pd.DataFrame:
+        idx = pd.date_range("2026-01-01", periods=len(temps), freq="5min")
+        return pd.DataFrame({"temperature_c": temps, "humidity_pct": 50.0}, index=idx)
+
+    def test_suppresses_single_outlier(self):
+        temps = [24.0] * 12 + [50.0] + [24.0] * 12
+        result = rolling_median(self._df(temps), window="1h")
+        assert result["temperature_c"].iloc[12] == pytest.approx(24.0)
+
+    def test_preserves_stable_values(self):
+        result = rolling_median(self._df([24.0] * 24), window="1h")
+        assert (result["temperature_c"] == 24.0).all()
+
+    def test_follows_sustained_change(self):
+        temps = [24.0] * 12 + [26.0] * 24
+        result = rolling_median(self._df(temps), window="1h")
+        assert result["temperature_c"].iloc[-1] == pytest.approx(26.0)
+
+    def test_empty_df_returns_empty(self):
+        df = pd.DataFrame(columns=["temperature_c", "humidity_pct"])
+        assert rolling_median(df).empty

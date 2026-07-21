@@ -53,6 +53,16 @@ def resample_for_display(df: pd.DataFrame) -> pd.DataFrame:
     return df.resample(rule).mean().dropna(how="all")
 
 
+def rolling_median(df: pd.DataFrame, window: str = "1h") -> pd.DataFrame:
+    """時刻インデックス済みデータにローリング中央値を掛けてセンサーノイズを抑える。
+
+    DHT-11 は単発読みの外れ値が出やすいため、平均ではなく中央値を使う。
+    """
+    if df.empty:
+        return df
+    return df.rolling(window).median()
+
+
 def x_format(days: float) -> str:
     if days <= 1:
         return "%H:%M"
