@@ -13,3 +13,7 @@ pytest>=9.0
 
 # orchestrator（Phase 3 以降）
 # prefect>=3.0      # ワークフロー管理
+
+# automation（エアコン自動OFF）
+# gpiozero          # 人感センサー用。Raspberry Pi OS にはプリインストール済み
+# （判定ロジックは pandas を使用。SwitchBot API は標準ライブラリのみ）

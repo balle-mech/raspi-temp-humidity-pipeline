@@ -61,3 +61,36 @@ tail -f data/logs/collector.log
 
 - 機能開発ブランチは `feature/` プレフィックスで始める（例: `feature/dashboard-smoothing`）。`dev` プレフィックスは使わない
 - フロー: `feature/*` → PR → `develop` → 動作確認後 `main` へマージ
+
+## 6. エアコン自動OFF（automation）
+
+温度の周期変動からエアコンONを推測し、人感センサーが長時間無反応なら
+SwitchBot 経由で OFF を送る。**デフォルトはドライラン**（ログのみ）。
+
+### 環境変数（.env に追記）
+
+| 変数名 | 必須 | デフォルト | 説明 |
+|--------|------|------------|------|
+| `SWITCHBOT_TOKEN` / `SWITCHBOT_SECRET` | ✓ | — | SwitchBot アプリ → プロフィール → 設定 → 開発者向けオプション |
+| `SWITCHBOT_AIRCON_DEVICE_ID` | ✓ | — | `python -m automation.switchbot devices` で確認 |
+| `PIR_GPIO` | — | 無効 | 人感センサーの GPIO 番号。未設定なら自動OFFは発動しない |
+| `AUTOMATION_DRY_RUN` | — | `true` | `false` で実際に OFF を送信 |
+| `NO_MOTION_HOURS` | — | `12` | 無人と判断するまでの時間 |
+| `AC_MIN_SWING_C` / `AC_MIN_SWINGS` | — | `0.8` / `4` | サイクル判定の振幅(℃)・反転回数 |
+| `AUTOMATION_INTERVAL_SEC` | — | `600` | 評価間隔（秒） |
+| `COOLDOWN_HOURS` | — | `3` | OFF送信後の再送抑止時間 |
+
+### 有効化の手順
+
+1. 過去データで判定精度を確認: `python -m automation.backtest data/raw 7`
+   （表示された「エアコンON推測」時間帯を実際の使用記憶と突き合わせる）
+2. ドライランで数日運用し、ログ（`data/logs/automation.log`）を確認
+3. 問題なければ `.env` で `AUTOMATION_DRY_RUN=false`
+
+### systemd 登録
+
+```bash
+sudo cp infra/systemd/temp-humidity-automation.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now temp-humidity-automation
+```

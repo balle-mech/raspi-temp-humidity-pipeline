@@ -1,0 +1,18 @@
+[Unit]
+Description=Aircon Auto-off Automation (temp cycling + PIR)
+After=network.target
+
+[Service]
+Type=simple
+User=mech
+WorkingDirectory=/home/mech/src/raspi-temp-humidity-pipeline
+EnvironmentFile=/home/mech/src/raspi-temp-humidity-pipeline/.env
+ExecStart=/home/mech/src/raspi-temp-humidity-pipeline/temp-humidity-sensor-venv/bin/python -m automation.main
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=temp-humidity-automation
+
+[Install]
+WantedBy=multi-user.target
