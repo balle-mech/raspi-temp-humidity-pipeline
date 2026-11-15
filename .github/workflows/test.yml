@@ -1,0 +1,29 @@
+# テストだけを動かす CI。main・develop への push と Pull Request で動く。
+# 実機（センサー）は使わない。テストは tests/fixtures の架空のデータだけを使う。
+name: test
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          # Raspberry Pi OS（bookworm）の Python に合わせる
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python -m pytest -q

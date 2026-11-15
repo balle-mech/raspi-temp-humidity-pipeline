@@ -1,0 +1,22 @@
+[Unit]
+Description=Temperature and Humidity readings API (read-only, for life-data on Mac mini)
+# Tailscale の IP で待ち受けるので、tailscaled が上がってから起動する
+After=network-online.target tailscaled.service
+Wants=network-online.target tailscaled.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=mech
+WorkingDirectory=/home/mech/src/raspi-temp-humidity-pipeline
+EnvironmentFile=/home/mech/src/raspi-temp-humidity-pipeline/.env
+# API_HOST は .env に Tailscale の IP（tailscale ip -4）を書く。未設定なら 127.0.0.1 だけで待ち受ける
+ExecStart=/home/mech/src/raspi-temp-humidity-pipeline/temp-humidity-sensor-venv/bin/python -m api.server
+Restart=always
+RestartSec=30
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=temp-humidity-api
+
+[Install]
+WantedBy=multi-user.target
