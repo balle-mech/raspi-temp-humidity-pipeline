@@ -49,3 +49,20 @@ def test_writes_are_rejected(base):
     with pytest.raises(urllib.error.HTTPError) as e:
         urllib.request.urlopen(req)
     assert e.value.code in (404, 405, 501)
+
+
+def test_unexpected_error_returns_500_instead_of_dropping(tmp_path, monkeypatch):
+    import api.server as srv
+
+    def boom(*a, **k):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(srv, "read_since", boom)
+    server = make_server("127.0.0.1", 0, tmp_path)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    try:
+        with pytest.raises(urllib.error.HTTPError) as e:
+            urllib.request.urlopen(f"http://127.0.0.1:{server.server_port}/readings")
+        assert e.value.code == 500
+    finally:
+        server.shutdown()

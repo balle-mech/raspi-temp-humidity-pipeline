@@ -50,3 +50,18 @@ def test_broken_lines_are_skipped(tmp_path):
     write(tmp_path, "2026-11-15", "壊れた行\n2026-11-15 00:00:00,20,50\n")
     rows, _ = read_since(tmp_path, None)
     assert len(rows) == 1
+
+
+def test_duplicate_timestamp_with_empty_value_does_not_crash(tmp_path):
+    # 同じ時刻の行が2つあり、片方の温度が空でも落ちない（並べ替えで None と数値を比べない）
+    write(tmp_path, "2026-11-16", "2026-11-16 08:00:00,,50.0\n2026-11-16 08:00:00,20.0,50.0\n2026-11-16 08:05:00,21.0,51.0\n")
+    rows, _ = read_since(tmp_path, None)
+    assert [r["timestamp"] for r in rows] == ["2026-11-16 08:00:00", "2026-11-16 08:00:00", "2026-11-16 08:05:00"]
+
+
+def test_unreadable_file_is_skipped(tmp_path):
+    # UTF-8 でない CSV が混ざっていても、他のファイルは返す
+    write(tmp_path, "2026-11-16", "2026-11-16 08:00:00,20.0,50.0\n")
+    (tmp_path / "broken.csv").write_bytes("timestamp,温度\n".encode("shift_jis") + b"\xff\xfe\n")
+    rows, _ = read_since(tmp_path, None)
+    assert [r["timestamp"] for r in rows] == ["2026-11-16 08:00:00"]

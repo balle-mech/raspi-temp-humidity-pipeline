@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import csv
 import re
+import sys
 from datetime import date, datetime
 from pathlib import Path
 
@@ -33,6 +34,14 @@ def _num(s: str | None) -> float | None:
 
 
 def _rows(path: Path):
+    """1ファイルの計測値。読めないファイル（UTF-8 でないなど）は飛ばし、標準エラーに残す。"""
+    try:
+        yield from _read_rows(path)
+    except (OSError, UnicodeDecodeError, csv.Error) as e:
+        print(f"読めないので飛ばす: {path}: {e!r}", file=sys.stderr, flush=True)
+
+
+def _read_rows(path: Path):
     with path.open(encoding="utf-8-sig", newline="") as f:
         reader = csv.reader(f)
         header = [_ALIASES.get(h.strip(), h.strip()) for h in next(reader, [])]
@@ -51,7 +60,8 @@ def _rows(path: Path):
 def read_since(data_dir: Path, since: datetime | None, limit: int = DEFAULT_LIMIT) -> tuple[list[dict], bool]:
     """since より後（since は含まない）の計測値を古い順に最大 limit 件。2つ目は続きがあるか。"""
     files = [p for p in Path(data_dir).rglob("*.csv") if since is None or (_file_day(p) or since.date()) >= since.date()]
-    rows = sorted(r for p in files for r in _rows(p) if since is None or r[0] > since)
+    # 時刻だけで並べる（同じ時刻の行があっても、None と数値を比べない）
+    rows = sorted((r for p in files for r in _rows(p) if since is None or r[0] > since), key=lambda r: r[0])
     out = [
         {"timestamp": ts.strftime("%Y-%m-%d %H:%M:%S"), "temperature_c": t, "humidity_pct": h}
         for ts, t, h in rows[:limit]
@@ -64,5 +74,5 @@ def latest(data_dir: Path) -> str | None:
     for p in reversed(files):
         rows = list(_rows(p))
         if rows:
-            return max(rows)[0].strftime("%Y-%m-%d %H:%M:%S")
+            return max(r[0] for r in rows).strftime("%Y-%m-%d %H:%M:%S")
     return None
