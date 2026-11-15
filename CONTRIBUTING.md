@@ -47,14 +47,17 @@ sudo systemctl status temp-humidity-collector
 
 ## 5. 読み取り API（life-data の Mac mini が取りに来る）
 
-`.env` に `API_HOST=<Pi の Tailscale IP>`（`tailscale ip -4` の値）を足してから登録する。詳しくは [api/README.md](api/README.md)。
+`main` を pull して、スクリプトを1つ動かすだけ。初回も更新のときも同じ（何度動かしてもよい）。詳しくは [api/README.md](api/README.md)。
 
 ```bash
-sudo cp infra/systemd/temp-humidity-api.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now temp-humidity-api
-curl -s "http://$(tailscale ip -4):8600/health"
+git pull && sh infra/deploy-api.sh
 ```
+
+スクリプトがすること:
+
+1. `.env` に `API_HOST` がなければ、Tailscale の IP（`tailscale ip -4`）を書く
+2. `temp-humidity-api` を systemd に登録して（再）起動する
+3. `/health` が返るまで待ち、Mac mini 側の `ROOM_API_URL` に書く値を出す
 
 ## 6. ログ確認
 
