@@ -17,6 +17,8 @@ direnv allow
 | `DATA_DIR` | — | `data/raw` | CSV 出力ディレクトリ |
 | `LOG_FILE` | — | `data/logs/collector.log` | ログファイルパス |
 | `LOG_LEVEL` | — | `INFO` | ログレベル（DEBUG/INFO/WARNING/ERROR） |
+| `API_HOST` | — | `127.0.0.1` | 読み取り API の待ち受けアドレス（Tailscale の IP） |
+| `API_PORT` | — | `8600` | 読み取り API のポート |
 
 ## 2. 仮想環境
 
@@ -43,7 +45,18 @@ sudo systemctl start temp-humidity-collector
 sudo systemctl status temp-humidity-collector
 ```
 
-## 5. ログ確認
+## 5. 読み取り API（life-data の Mac mini が取りに来る）
+
+`.env` に `API_HOST=<Pi の Tailscale IP>`（`tailscale ip -4` の値）を足してから登録する。詳しくは [api/README.md](api/README.md)。
+
+```bash
+sudo cp infra/systemd/temp-humidity-api.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now temp-humidity-api
+curl -s "http://$(tailscale ip -4):8600/health"
+```
+
+## 6. ログ確認
 
 ```bash
 journalctl -u temp-humidity-collector -f

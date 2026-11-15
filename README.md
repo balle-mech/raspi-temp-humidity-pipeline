@@ -22,6 +22,10 @@ graph TD
 
     SENSOR --> COLLECTOR
     COLLECTOR --> CSV
+    API["api（読み取り専用）\nGET /readings?since=…"]
+    MAC["Mac mini の life-data\n定期的に取りに来て React で表示"]
+    CSV --> API
+    MAC -->|Tailscale| API
     CSV --> BATCH
     CSV --> STREAM
     ORCH -.->|スケジューリング| BATCH
