@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import json
 import os
+import sys
+import traceback
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -36,6 +38,14 @@ def make_server(host: str, port: int, data_dir: Path) -> ThreadingHTTPServer:
             self.wfile.write(raw)
 
         def do_GET(self) -> None:  # noqa: N802
+            # 想定外の例外でも接続を切らずに 500 を返し、原因は journal に残す
+            try:
+                self._get()
+            except Exception as e:  # noqa: BLE001
+                traceback.print_exc(file=sys.stderr)
+                self._send(500, {"error": repr(e)})
+
+        def _get(self) -> None:
             url = urlparse(self.path)
             q = parse_qs(url.query)
             if url.path == "/health":
